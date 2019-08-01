@@ -1,4 +1,4 @@
 # king_testing
-Run: ./test.py 
-Clean after previous tests: ./test.py -c 
-Requires internet connection. 
+Run: `./test.py` <br />
+Clean after previous tests: `./test.py -c` <br />
+Requires internet connection. <br />
