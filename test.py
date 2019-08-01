@@ -21,6 +21,7 @@ king_exe = os.path.join(king_path, "king")
 parser = argparse.ArgumentParser()
 parser.add_argument('-c', dest='clean', action="store_true",
                     default=False, help="Clean directory from previous testing.")
+parser.add_argument('-v', dest='verbose', help="Verbose tests output.")
 
 
 def prepare_tested_data():
@@ -103,25 +104,30 @@ def handle_relationship_summary(input):
     return summaries
 
 
-def handle_output_summary(input, separator = "Sorting autosomes..."): 
-    duplicate = []
-    cut = False
-    count = 4
+def prepare_output(input, separator = "Sorting autosomes...", count = None, save = False): 
+    out = []
+    inside = False
     for line in input[:-1]:
-        if cut == True and count >= 1:
+        tmp  = line.strip("  ")
+        if count >= 1 and inside:
             count = count -1
+            if not save:
+                continue
+            out.append(line)
             continue
-        if line.startswith(separator):
-            cut = True
+        if tmp.startswith(separator):
+            if save: 
+                out.append(line)
             count = count -1
+            inside = True
             continue
-        if line is not "":
-            duplicate.append(line)
-    return duplicate
+        if tmp is not "" and save == False:
+            out.append(line)
+    return out
 
 
 class KingTestCase(unittest.TestCase):
-
+  ##TODO checking if files created by different functions exist
     def format_command(self, param):
         command = ["{}".format(king_exe), "-b",
                    "{}".format(bed), "--prefix", "{}".format(king_path + "/"), "{}".format(param)]
@@ -129,7 +135,7 @@ class KingTestCase(unittest.TestCase):
         #           "{}".format(bed), "--prefix", "{}".format(king_path + "/"), "{}".format(param)]
         return command
 
-    def test_related(self):
+    def test_related(self): # ibd + kinship 
         cmd = self.format_command("--related")
         # print(cmd)
         out = subprocess.check_output(cmd)
@@ -143,15 +149,23 @@ class KingTestCase(unittest.TestCase):
         cmd = self.format_command("--duplicate")
         out = subprocess.check_output(cmd)
         output = handle_kings_output(out)
-        dups = handle_output_summary(output)
-        self.assertEqual(dups, ["No duplicates are found with heterozygote concordance rate > 80%."], "Incorrect duplicates.")
+        summary = prepare_output(output, count = 4)
+        self.assertEqual(summary, ["No duplicates are found with heterozygote concordance rate > 80%."], "Incorrect duplicates.")
 
-    def test_ibdseq(self):
-        cmd = self.format_command("--ibdseq")
+    def test_unrelated(self):
+        cmd = self.format_command("--unrelated")
         out = subprocess.check_output(cmd)
-        output = handle_kings_output(out)
-        ibd_out = handle_output_summary(output, "IBD segment analysis")
-        print("\n".join(ibd_out))
+        output = handle_kings_output(out, "The following families")
+        summary = prepare_output(output, separator="NewFamID", count = 3, save = True)
+        result = []
+        for line in summary: 
+            if line.startswith("  NewFamID"): 
+                continue
+            line = line.strip("  ")
+            line = line.split("     ")
+            result.append({line[0] : line[1]})
+        self.assertEqual(result[0], {'KING1': 'Y028,Y117'}, "Incorrect unrelated members.")
+        self.assertEqual(result[1], {'KING2': '1454,13291'}, "Incorrect unrelated members.")
 
 
 if __name__ == "__main__":
