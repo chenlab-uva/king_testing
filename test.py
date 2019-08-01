@@ -144,7 +144,7 @@ class KingTestCase(unittest.TestCase):
         out = subprocess.check_output(cmd)
         summary = handle_kings_output(out, "Sorting autosomes...")
         dups = handle_duplicates(summary)
-        self.assertEqual(dups, ["No duplicates are found with heterozygote concordance rate > 80%."], "Incottect duplicates.")
+        self.assertEqual(dups, ["No duplicates are found with heterozygote concordance rate > 80%."], "Incorrect duplicates.")
 
 if __name__ == "__main__":
     options = parser.parse_known_args()[0]
