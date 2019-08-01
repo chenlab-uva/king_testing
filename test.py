@@ -68,7 +68,6 @@ def clean_repository():
 def handle_kings_output(out, separator = "Sorting autosomes..."):
     out = out.decode()
     lines = out.split("\n")
-    # print(lines)
     summary = []
     inside_summary = False
     for line in lines:
@@ -78,7 +77,6 @@ def handle_kings_output(out, separator = "Sorting autosomes..."):
             elif line.startswith(separator):
                 summary.append(line)
                 inside_summary = True
-    #print("\n".join(summary))
     return summary
 
 
@@ -100,7 +98,6 @@ def handle_relationship_summary(input):
                 sum = {}
         if line.startswith("Relationship summary"):
             in_summary = True
-    #print(summaries)
     return summaries
 
 
@@ -131,8 +128,6 @@ class KingTestCase(unittest.TestCase):
     def format_command(self, param):
         command = ["{}".format(king_exe), "-b",
                    "{}".format(bed), "--prefix", "{}".format(king_path + "/"), "{}".format(param)]
-        #command = ["king", "-b",
-        #           "{}".format(bed), "--prefix", "{}".format(king_path + "/"), "{}".format(param)]
         return command
 
     def test_related(self): # ibd + kinship 
