@@ -64,19 +64,43 @@ def clean_repository():
     print("Finished")
 
 
-def handle_kings_output(out):
+def handle_kings_output(out, separator):
     out = out.decode()
     lines = out.split("\n")
     # print(lines)
     summary = []
     inside_summary = False
     for line in lines:
-        if inside_summary: 
-            summary.append(line)
-        if line.startswith("Autosome genotypes") or inside_summary:
-            inside_summary = True
-        
-    print("\n".join(summary))
+        if line is not "":
+            if inside_summary: 
+                summary.append(line)
+            elif line.startswith(separator):
+                summary.append(line)
+                inside_summary = True
+    #print("\n".join(summary))
+    return summary
+
+
+def handle_relationship_summary(input):
+    summaries = []
+    sum = {} 
+    in_summary = False
+    for line in input: 
+        line = line.strip("  ")
+        if in_summary: 
+            if line.startswith("Pedigree"):  #MZ PO FS 2nd 3rd OTHER
+                pedigree = line.split("\t")[1:]
+                sum["pedigree"] = pedigree
+            if line.startswith("Inference"):  #MZ PO FS 2nd 3rd OTHER
+                inference = line.split("\t")[1:]
+                sum["inference"] = inference
+                in_summary = False
+                summaries.append(sum)
+                sum = {}
+        if line.startswith("Relationship summary"):
+            in_summary = True
+    #print(summaries)
+    return summaries
 
 
 class KingTestCase(unittest.TestCase):
@@ -87,18 +111,25 @@ class KingTestCase(unittest.TestCase):
     def format_command(self, param):
         command = ["{}".format(king_exe), "-b",
                    "{}".format(bed), "--prefix", "{}".format(king_path + "/"), "{}".format(param)]
+        #command = ["king", "-b",
+        #           "{}".format(bed), "--prefix", "{}".format(king_path + "/"), "{}".format(param)]
         return command
-
-    def test_default_widget_size(self):
-        self.assertEqual((50, 50), (50, 50), 'incorrect default size')
 
     def test_related(self):
         cmd = self.format_command("--related")
         # print(cmd)
         out = subprocess.check_output(cmd)
-        handle_kings_output(out)
-        self.assertEqual(1, 1, 'wrong')
-
+        summary = handle_kings_output(out, "Relationship summary")
+        relationships = handle_relationship_summary(summary)
+        self.assertEqual(relationships[0]['pedigree'], ['0', '200', '0', '0', '0', '291'], 'Incorrect pedigree.')
+        self.assertEqual(relationships[0]['inference'], ['0', '200', '0', '0', '0', '291'], 'Incorrect inference.')
+        self.assertEqual(relationships[1]['inference'], ['0', '1', '1', '0'], 'Incorrect inference')
+    
+    def test_duplicate(self):
+        cmd = self.format_command("--duplicate")
+        out = subprocess.check_output(cmd)
+        summary = handle_kings_output(out, "Relationship summary")
+        relationships = handle_relationship_summary(summary)
 
 if __name__ == "__main__":
     options = parser.parse_known_args()[0]
