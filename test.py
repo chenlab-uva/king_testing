@@ -103,10 +103,24 @@ def handle_relationship_summary(input):
     return summaries
 
 
+def handle_duplicates(input): 
+    duplicate = []
+    cut = False
+    count = 4
+    for line in input[:-1]:
+        if cut == True and count >= 1:
+            count = count -1
+            continue
+        if line.startswith("Sorting autosomes..."):
+            cut = True
+            count = count -1
+            continue
+        if line is not "":
+            duplicate.append(line)
+    return duplicate
+
+
 class KingTestCase(unittest.TestCase):
-   #def setUp(self):
-    #    prepare_tested_data()
-     #   prepare_king_source()
 
     def format_command(self, param):
         command = ["{}".format(king_exe), "-b",
@@ -128,8 +142,9 @@ class KingTestCase(unittest.TestCase):
     def test_duplicate(self):
         cmd = self.format_command("--duplicate")
         out = subprocess.check_output(cmd)
-        summary = handle_kings_output(out, "Relationship summary")
-        relationships = handle_relationship_summary(summary)
+        summary = handle_kings_output(out, "Sorting autosomes...")
+        dups = handle_duplicates(summary)
+        self.assertEqual(dups, ["No duplicates are found with heterozygote concordance rate > 80%."], "Incottect duplicates.")
 
 if __name__ == "__main__":
     options = parser.parse_known_args()[0]
