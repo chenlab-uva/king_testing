@@ -64,7 +64,7 @@ def clean_repository():
     print("Finished")
 
 
-def handle_kings_output(out, separator):
+def handle_kings_output(out, separator = "Sorting autosomes..."):
     out = out.decode()
     lines = out.split("\n")
     # print(lines)
@@ -103,7 +103,7 @@ def handle_relationship_summary(input):
     return summaries
 
 
-def handle_duplicates(input): 
+def handle_output_summary(input, separator = "Sorting autosomes..."): 
     duplicate = []
     cut = False
     count = 4
@@ -111,7 +111,7 @@ def handle_duplicates(input):
         if cut == True and count >= 1:
             count = count -1
             continue
-        if line.startswith("Sorting autosomes..."):
+        if line.startswith(separator):
             cut = True
             count = count -1
             continue
@@ -142,9 +142,17 @@ class KingTestCase(unittest.TestCase):
     def test_duplicate(self):
         cmd = self.format_command("--duplicate")
         out = subprocess.check_output(cmd)
-        summary = handle_kings_output(out, "Sorting autosomes...")
-        dups = handle_duplicates(summary)
+        output = handle_kings_output(out)
+        dups = handle_output_summary(output)
         self.assertEqual(dups, ["No duplicates are found with heterozygote concordance rate > 80%."], "Incorrect duplicates.")
+
+    def test_ibdseq(self):
+        cmd = self.format_command("--ibdseq")
+        out = subprocess.check_output(cmd)
+        output = handle_kings_output(out)
+        ibd_out = handle_output_summary(output, "IBD segment analysis")
+        print("\n".join(ibd_out))
+
 
 if __name__ == "__main__":
     options = parser.parse_known_args()[0]
