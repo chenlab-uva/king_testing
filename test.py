@@ -36,7 +36,7 @@ def prepare_tested_data():
 
 
 def prepare_king_source():
-    print("Preparing KING's source code ...")
+    print("Building KING from source code ...")
     url = "http://people.virginia.edu/~wc9c/KING/KINGcode.tar.gz"
     handle_tarball(url, "king_src")
     king_obj = os.path.join(king_path, "*.cpp")
@@ -125,17 +125,19 @@ def prepare_output(input, separator="Sorting autosomes...", count=None, save=Fal
 
 
 class KingTestCase(unittest.TestCase):
-    # TODO checking if files created by different functions exist
 
     def format_command(self, param):
         command = ["{}".format(king_exe), "-b",
                    "{}".format(bed), "--prefix", "{}".format(os.path.join(king_path, files_prefix)), "{}".format(param)]
         return command
 
-    def test_related(self):  # ibd + kinship
-        cmd = self.format_command("--related")
-        # print(cmd)
+    def run_command(self, fun):
+        cmd = self.format_command(fun)
         out = subprocess.check_output(cmd)
+        return out
+
+    def test_related(self):  # ibd + kinship
+        out = self.run_command("--related")
         summary = handle_kings_output(out, "Relationship summary")
         relationships = handle_relationship_summary(summary)
         self.assertEqual(relationships[0]['pedigree'], [
@@ -154,16 +156,14 @@ class KingTestCase(unittest.TestCase):
             king_path, files_prefix + ".kin0")), "Between-familt relatives file doesn't exist.")
 
     def test_duplicate(self):
-        cmd = self.format_command("--duplicate")
-        out = subprocess.check_output(cmd)
+        out = self.run_command("--duplicate")
         output = handle_kings_output(out)
         summary = prepare_output(output, count=4)
         self.assertEqual(summary, [
                          "No duplicates are found with heterozygote concordance rate > 80%."], "Incorrect duplicates.")
 
     def test_unrelated(self):
-        cmd = self.format_command("--unrelated")
-        out = subprocess.check_output(cmd)
+        out = self.run_command("--unrelated")
         output = handle_kings_output(out, "The following families")
         summary = prepare_output(
             output, separator="NewFamID", count=3, save=True)
@@ -186,16 +186,14 @@ class KingTestCase(unittest.TestCase):
                         "File containing to-be-removed individials doesn't exist.")
 
     def test_cluster_files(self):
-        cmd = self.format_command("--cluster")
-        out = subprocess.check_output(cmd)
+        out = self.run_command("--cluster")
         self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix +
                                                     "updateids.txt")), "File containing updated-if information doesn't exist.")
         self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix + "cluster.kin")),
                         "File containing newly clustered families doesn't exist.")
 
     def test_build(self):
-        cmd = self.format_command("--build")
-        out = subprocess.check_output(cmd)
+        out = self.run_command("--build")
         output = handle_kings_output(out, "Family KING2:")
         summary = prepare_output(
             output, separator="Family KING2:", count=2, save=True)
@@ -207,6 +205,29 @@ class KingTestCase(unittest.TestCase):
                         "File containing details of pedigree reconstruction doesn't exist.")
         self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix + "updateparents.txt")),
                         "File containing updated parent information doesn't exist.")
+
+    def test_by_sample(self):
+        out = self.run_command("--bysample")
+        output = handle_kings_output(out, "QC-by-sample starts")
+        summary = prepare_output(
+            output, separator="QC-by-sample starts", count=2, save=True)
+        self.assertEqual(
+            summary[1], "There are 200 parent-offspring pairs and 94 trios according to the pedigree.")
+
+    def test_by_sample_files(self):
+        self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix +
+                                                    "bySample.txt")), "File containing QC statistics by sample doesn't exist.")
+
+    def test_by_SNP(self):
+        self.run_command("--bySNP")
+        self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix + "bySNP.txt")), "File containing QC statistics by SNP doesn't exist.")
+
+    def test_roh(self):
+        self.run_command("--roh")
+        self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix + ".roh")),
+                        "File containing run of homozygosity summary doesn't exist.")
+        self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix + ".rohseg.gz")),
+                        "File containing run of homozygosity segments doesn't exist.")
 
 
 if __name__ == "__main__":
