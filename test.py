@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import sys
 import subprocess
-import os
 import unittest
 import argparse
 import unittest
@@ -17,11 +16,13 @@ king_path = os.path.join(cur_dir, "king_src")
 data = os.path.join(cur_dir, "data")
 bed = "ex.bed"
 king_exe = os.path.join(king_path, "king")
+files_prefix = "test"
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-c', dest='clean', action="store_true",
                     default=False, help="Clean directory from previous testing.")
-parser.add_argument('-v', dest='verbose', help="Verbose tests output.")
+parser.add_argument('-v', action="store_true", help="Verbose tests output.")
 
 
 def prepare_tested_data():
@@ -125,9 +126,10 @@ def prepare_output(input, separator = "Sorting autosomes...", count = None, save
 
 class KingTestCase(unittest.TestCase):
   ##TODO checking if files created by different functions exist
+    
     def format_command(self, param):
         command = ["{}".format(king_exe), "-b",
-                   "{}".format(bed), "--prefix", "{}".format(king_path + "/"), "{}".format(param)]
+                   "{}".format(bed), "--prefix", "{}".format(os.path.join(king_path, files_prefix)), "{}".format(param)]
         return command
 
     def test_related(self): # ibd + kinship 
@@ -139,7 +141,11 @@ class KingTestCase(unittest.TestCase):
         self.assertEqual(relationships[0]['pedigree'], ['0', '200', '0', '0', '0', '291'], 'Incorrect pedigree.')
         self.assertEqual(relationships[0]['inference'], ['0', '200', '0', '0', '0', '291'], 'Incorrect inference.')
         self.assertEqual(relationships[1]['inference'], ['0', '1', '1', '0'], 'Incorrect inference')
-    
+        self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix + "allsegs.txt")), "IBD SEGs file doesn't exist.")
+        self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix + ".kin")), "Within-familt kinship data file doesn't exist.")
+        self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix + ".kin0")), "Between-familt relatives file doesn't exist.")
+
+
     def test_duplicate(self):
         cmd = self.format_command("--duplicate")
         out = subprocess.check_output(cmd)
@@ -161,6 +167,8 @@ class KingTestCase(unittest.TestCase):
             result.append({line[0] : line[1]})
         self.assertEqual(result[0], {'KING1': 'Y028,Y117'}, "Incorrect unrelated members.")
         self.assertEqual(result[1], {'KING2': '1454,13291'}, "Incorrect unrelated members.")
+        self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix + "unrelated_toberemoved.txt")), "File containing unrelated individials doesn't exist.")
+        self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix + "unrelated.txt")), "File containing to-be-removed individials doesn't exist.")
 
 
 if __name__ == "__main__":
