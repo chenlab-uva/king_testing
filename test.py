@@ -278,6 +278,12 @@ class KingTestCase(unittest.TestCase):
         # Assert that command with improper arguments throws an exception (fatal error)
         self.assertNotEqual(out, 0, "Incorrect --covariate output.")
 
+    def test_risk(self):
+        out = self.run_command("--risk", exit_stat=True)
+        # Assert that command with improper arguments throws an exception (fatal error)
+        self.assertNotEqual(out, 0, "Incorrect --risk output.")
+
+
 
 if __name__ == "__main__":
     options = parser.parse_known_args()[0]
