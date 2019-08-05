@@ -11,6 +11,8 @@ import os
 import shutil
 
 
+###Not tested: --callrateM, --callrateN, --mds, --pcam --invnorm, --maxP, --model, --prevalence, --noflip, --cpus
+
 cur_dir = os.path.dirname(os.path.realpath(__file__))
 king_path = os.path.join(cur_dir, "king_src")
 data = os.path.join(cur_dir, "data")
@@ -41,8 +43,6 @@ def prepare_king_source():
     url = "http://people.virginia.edu/~wc9c/KING/KINGcode.tar.gz"
     handle_tarball(url, "king_src")
     king_obj = os.path.join(king_path, "*.cpp")
-    # command = ["c++", "-lm", "-O2", "-fopenmp", "-o", "{}".format(king_exe), "{}".format(king_obj), "-lz"]
-    # subprocess.run(command, shell=True)
     os.system("c++ -lm -O2 -fopenmp -o {} {} -lz".format(king_exe, king_obj))
     print("Preparing KING's source code finished.")
 
@@ -290,6 +290,7 @@ class KingTestCase(unittest.TestCase):
         output = handle_kings_output(out, "Relationship inference")
         summary = prepare_output(output, separator="2 CPU cores are used", count=1, save=True)
         self.assertEqual(summary[0], "2 CPU cores are used...", "Incorrect number of cpus used.")
+
 
 if __name__ == "__main__":
     options = parser.parse_known_args()[0]
