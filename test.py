@@ -131,9 +131,15 @@ class KingTestCase(unittest.TestCase):
                    "{}".format(bed), "--prefix", "{}".format(os.path.join(king_path, files_prefix)), "{}".format(param)]
         return command
 
-    def run_command(self, fun):
+    def run_command(self, fun, exit_stat=False):
         cmd = self.format_command(fun)
-        out = subprocess.check_output(cmd)
+        if exit_stat: 
+            try:
+                grepOut = subprocess.check_output(cmd)                       
+            except subprocess.CalledProcessError as grepexc:                                                                                                   
+                out = grepexc.returncode
+        else: 
+            out = subprocess.check_output(cmd)
         return out
 
     def test_related(self):  # ibd + kinship
@@ -243,11 +249,16 @@ class KingTestCase(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix + "_autoQC_snptoberemoved.txt")),"File containing SNP-removal QC doesn't exist.")
         self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix + "_autoQC_sampletoberemoved.txt")),"File containing Sample-removal QC doesn't exist.")
 
+    def test_mtscore(self): 
+        out = self.run_command("--mtscore", exit_stat = True)   
+        self.assertNotEqual(out, 0, "Incorrect --mtscore output.") # Assert that command --mtscore with improper arguments throws an exception (fatal error)
+
     def test_tdt(self): 
         out = self.run_command("--tdt")
         output = handle_kings_output(out, "\x07WARNING")
         summary = prepare_output(output, separator="\x07WARNING", count=2, save=True)
         self.assertEqual(summary[1], "TDT analysis requires parent-affected-offspring trios.", "Incorrect --tdt output.")
+
 
 if __name__ == "__main__":
     options = parser.parse_known_args()[0]
