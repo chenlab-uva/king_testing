@@ -23,6 +23,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-c', dest='clean', action="store_true",
                     default=False, help="Clean directory from previous testing.")
 parser.add_argument('-v', action="store_true", help="Verbose tests output.")
+parser.add_argument('-d', action="store_true", dest="data", help="Prepare data without building and testing.")
 
 
 def prepare_tested_data():
@@ -283,12 +284,20 @@ class KingTestCase(unittest.TestCase):
         # Assert that command with improper arguments throws an exception (fatal error)
         self.assertNotEqual(out, 0, "Incorrect --risk output.")
 
-
+    @unittest.skip("Not able to call \"--cpus\" from Python with success")  
+    def test_cpus(self):
+        out = self.run_command("--cpus")
+        output = handle_kings_output(out, "Relationship inference")
+        summary = prepare_output(output, separator="2 CPU cores are used", count=1, save=True)
+        self.assertEqual(summary[0], "2 CPU cores are used...", "Incorrect number of cpus used.")
 
 if __name__ == "__main__":
     options = parser.parse_known_args()[0]
     if options.clean:
         clean_repository()
+        sys.exit()
+    if options.data: 
+        prepare_tested_data()
         sys.exit()
     prepare_tested_data()
     prepare_king_source()
