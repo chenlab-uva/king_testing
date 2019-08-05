@@ -237,11 +237,17 @@ class KingTestCase(unittest.TestCase):
         for line in summary:
             sum.append(" ".join(line.split()))
         self.assertEqual(sum, ['Step Description Subjects SNPs', '1 Raw data counts 332 18290', '1.1 SNPs with very low call rate < 80% (removed) (0)', '1.2 Monomorphic SNPs (removed) (0)', '1.3 Sample call rate < 95% (removed) (0)', '1.4 SNPs with call rate < 95% (removed) (0)', '3 Generate Final Study Files', "Final QC'ed data 332 18290"], "Incorrect summary of autoQC.")
+    
     def test_autoqc_files(self):
-         self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix + "_autoQC_Summary.txt")),"File containing QC summary report doesn't exist.")
-         self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix + "_autoQC_snptoberemoved.txt")),"File containing SNP-removal QC doesn't exist.")
-         self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix + "_autoQC_sampletoberemoved.txt")),"File containing Sample-removal QC doesn't exist.")
+        self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix + "_autoQC_Summary.txt")),"File containing QC summary report doesn't exist.")
+        self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix + "_autoQC_snptoberemoved.txt")),"File containing SNP-removal QC doesn't exist.")
+        self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix + "_autoQC_sampletoberemoved.txt")),"File containing Sample-removal QC doesn't exist.")
 
+    def test_tdt(self): 
+        out = self.run_command("--tdt")
+        output = handle_kings_output(out, "\x07WARNING")
+        summary = prepare_output(output, separator="\x07WARNING", count=2, save=True)
+        self.assertEqual(summary[1], "TDT analysis requires parent-affected-offspring trios.", "Incorrect --tdt output.")
 
 if __name__ == "__main__":
     options = parser.parse_known_args()[0]
