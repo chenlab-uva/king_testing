@@ -159,9 +159,9 @@ class KingTestCase(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(
             king_path, files_prefix + "allsegs.txt")), "IBD SEGs file doesn't exist.")
         self.assertTrue(os.path.exists(os.path.join(
-            king_path, files_prefix + ".kin")), "Within-familt kinship data file doesn't exist.")
+            king_path, files_prefix + ".kin")), "Within-family kinship data file doesn't exist.")
         self.assertTrue(os.path.exists(os.path.join(
-            king_path, files_prefix + ".kin0")), "Between-familt relatives file doesn't exist.")
+            king_path, files_prefix + ".kin0")), "Between-family relatives file doesn't exist.")
 
     def test_duplicate(self):
         out = self.run_command("--duplicate")
@@ -189,14 +189,14 @@ class KingTestCase(unittest.TestCase):
 
     def test_unrelated_files(self):
         self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix +
-                                                    "unrelated_toberemoved.txt")), "File containing unrelated individials doesn't exist.")
+                                                    "unrelated_toberemoved.txt")), "File containing unrelated individuals doesn't exist.")
         self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix + "unrelated.txt")),
-                        "File containing to-be-removed individials doesn't exist.")
+                        "File containing to-be-removed individuals doesn't exist.")
 
     def test_cluster_files(self):
         out = self.run_command("--cluster")
         self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix +
-                                                    "updateids.txt")), "File containing updated-if information doesn't exist.")
+                                                    "updateids.txt")), "File containing update-id information doesn't exist.")
         self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix + "cluster.kin")),
                         "File containing newly clustered families doesn't exist.")
 
