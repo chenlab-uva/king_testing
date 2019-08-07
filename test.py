@@ -10,19 +10,13 @@ import urllib.request
 
 ###Not tested: --callrateM, --callrateN, --mds, --pcam --invnorm, --maxP, --model, --prevalence, --noflip, --cpus
 
-cur_dir = os.path.dirname(os.path.realpath(__file__))
-king_path = os.path.join(cur_dir, "king_src")
-data = os.path.join(cur_dir, "data")
-bed = "ex.bed"
-king_exe = os.path.join(king_path, "king")
-files_prefix = "test"
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-c', dest='clean', action="store_true",
                     default=False, help="Clean directory from previous testing.")
 parser.add_argument('-v', action="store_true", help="Verbose tests output.")
 parser.add_argument('-d', action="store_true", dest="data", help="Prepare data without building and testing.")
+parser.add_argument('-e', action="store", dest="exe", help="Specify KING executable to be used for testing.")
 
 
 def prepare_tested_data():
@@ -38,7 +32,7 @@ def prepare_tested_data():
 def prepare_king_source():
     print("Building KING from source code ...")
     url = "http://people.virginia.edu/~wc9c/KING/KINGcode.tar.gz"
-    handle_tarball(url, "king_src")
+    handle_tarball(url, king_path)
     king_obj = os.path.join(king_path, "*.cpp")
     os.system("c++ -lm -O2 -fopenmp -o {} {} -lz".format(king_exe, king_obj))
     print("Preparing KING's source code finished.")
@@ -49,11 +43,15 @@ def handle_tarball(url, dest_dir=None):
     urllib.request.urlretrieve(url, filename)
     if tarfile.is_tarfile(filename):
         tar = tarfile.open(filename)
-        if os.path.exists(dest_dir):
-            shutil.rmtree(dest_dir)
-        os.makedirs(dest_dir)
+        prepare_directory(dest_dir)
         tar.extractall(dest_dir)
         os.remove(filename)
+
+
+def prepare_directory(dest_dir):
+    if os.path.exists(dest_dir):
+        shutil.rmtree(dest_dir)
+    os.makedirs(dest_dir)
 
 
 def clean_repository():
@@ -290,13 +288,38 @@ class KingTestCase(unittest.TestCase):
 
 
 if __name__ == "__main__":
+    global king_exe, cur_dir, king_path, data, bed, files_prefix
+    cur_dir = os.path.dirname(os.path.realpath(__file__))
+    king_path = os.path.join(cur_dir, "king_src")
+    data = os.path.join(cur_dir, "data")
+    bed = "ex.bed"
+    files_prefix = "test"
+
     options = parser.parse_known_args()[0]
+
     if options.clean:
         clean_repository()
         sys.exit()
     if options.data: 
         prepare_tested_data()
         sys.exit()
+    if options.exe:
+        if os.path.exists(options.exe): 
+            prepare_directory(king_path)
+            king_exe = options.exe
+            #Delete "-e" argument from arguments list to prevent unittest errors - it is script argument not unittests argument 
+            for x in range(0, len(sys.argv)): 
+                if sys.argv[x] == "-e":
+                    #Pop "-e" and path itself
+                    sys.argv.pop(x+1)
+                    sys.argv.pop(x)
+                    break
+        else: 
+            print("Specified path to KING executable doesn't exist.")
+            sys.exit(1)
+    else:
+        king_exe = os.path.join(king_path, "king")
+        prepare_king_source()
+
     prepare_tested_data()
-    prepare_king_source()
     unittest.main()
