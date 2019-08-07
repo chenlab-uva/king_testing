@@ -1,16 +1,12 @@
 #!/usr/bin/env python3
+import os
 import sys
-import subprocess
+import shutil
+import tarfile
 import unittest
 import argparse
-# Is it necessary to import unittest and subprocess twice?
-import unittest
 import subprocess
 import urllib.request
-import tarfile
-import os
-import shutil
-
 
 ###Not tested: --callrateM, --callrateN, --mds, --pcam --invnorm, --maxP, --model, --prevalence, --noflip, --cpus
 
