@@ -264,22 +264,12 @@ class KingTestCase(unittest.TestCase):
         self.assertEqual(
             summary[1], "TDT analysis requires parent-affected-offspring trios.", "Incorrect --tdt output.")
 
-    def test_trait(self):
-        out = self.run_command("--trait []", exit_stat=True)
-        # Assert that command with improper arguments throws an exception (fatal error)
-        self.assertNotEqual(out, 0, "Incorrect --trait output.")
-
-    def test_covariate(self):
-        out = self.run_command("--covariate []", exit_stat=True)
-        # Assert that command with improper arguments throws an exception (fatal error)
-        self.assertNotEqual(out, 0, "Incorrect --covariate output.")
-
     def test_risk(self):
         out = self.run_command("--risk", exit_stat=True)
         # Assert that command with improper arguments throws an exception (fatal error)
         self.assertNotEqual(out, 0, "Incorrect --risk output.")
 
-    @unittest.skip("Not able to call \"--cpus\" from Python with success")  
+    @unittest.skip()  
     def test_cpus(self):
         out = self.run_command("--cpus")
         output = handle_kings_output(out, "Relationship inference")
