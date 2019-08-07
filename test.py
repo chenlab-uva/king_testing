@@ -3,7 +3,7 @@ import sys
 import subprocess
 import unittest
 import argparse
-# Is it necessary to import unittest twice?
+# Is it necessary to import unittest and subprocess twice?
 import unittest
 import subprocess
 import urllib.request
