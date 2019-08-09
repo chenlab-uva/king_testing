@@ -269,7 +269,7 @@ class KingTestCase(unittest.TestCase):
         # Assert that command with improper arguments throws an exception (fatal error)
         self.assertNotEqual(out, 0, "Incorrect --risk output.")
 
-    @unittest.skip()  
+    @unittest.skip("Not able to call --cpus from Python.")  
     def test_cpus(self):
         out = self.run_command("--cpus")
         output = handle_kings_output(out, "Relationship inference")
