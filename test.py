@@ -8,15 +8,17 @@ import argparse
 import subprocess
 import urllib.request
 
-###Not tested: --callrateM, --callrateN, --mds, --pcam --invnorm, --maxP, --model, --prevalence, --noflip, --cpus
+# Not tested: --callrateM, --callrateN, --mds, --pcam --invnorm, --maxP, --model, --prevalence, --noflip, --cpus
 
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-c', dest='clean', action="store_true",
                     default=False, help="Clean directory from previous testing.")
 parser.add_argument('-v', action="store_true", help="Verbose tests output.")
-parser.add_argument('-d', action="store_true", dest="data", help="Prepare data without building and testing.")
-parser.add_argument('-e', action="store", dest="exe", help="Specify KING executable to be used for testing.")
+parser.add_argument('-d', action="store_true", dest="data",
+                    help="Prepare data without building and testing.")
+parser.add_argument('-e', action="store", dest="exe",
+                    help="Specify KING executable to be used for testing.")
 
 
 def prepare_tested_data():
@@ -269,12 +271,34 @@ class KingTestCase(unittest.TestCase):
         # Assert that command with improper arguments throws an exception (fatal error)
         self.assertNotEqual(out, 0, "Incorrect --risk output.")
 
-    @unittest.skip("Not able to call --cpus from Python.")  
+    @unittest.skip("Not able to call --cpus from Python.")
     def test_cpus(self):
         out = self.run_command("--cpus")
         output = handle_kings_output(out, "Relationship inference")
-        summary = prepare_output(output, separator="2 CPU cores are used", count=1, save=True)
-        self.assertEqual(summary[0], "2 CPU cores are used...", "Incorrect number of cpus used.")
+        summary = prepare_output(
+            output, separator="2 CPU cores are used", count=1, save=True)
+        self.assertEqual(
+            summary[0], "2 CPU cores are used...", "Incorrect number of cpus used.")
+
+    def test_pca(self):
+        out = self.run_command("--pca")
+        if "SVD...  Please re-compile KING with LAPACK library." in out.decode():
+            return
+        output = handle_kings_output(out, "SVD...  LAPACK is used.")
+        summary = prepare_output(
+            output, separator="SVD...  LAPACK is used.", count=2, save=True)
+        self.assertEqual(
+            summary[1], "Largest 20 eigenvalues: 828.95 160.64 158.81 148.44 145.73 144.82 143.56 143.08 143.01 142.91 142.60 142.15 142.01 141.80 141.69 141.62 141.28 141.08 140.94 140.72", "Incorrect pca analysis.")
+
+    def test_mds(self):
+        out = self.run_command("--mds")
+        if "  Please re-compile KING with LAPACK library." in out.decode():
+            return
+        output = handle_kings_output(out, "  LAPACK is being used...")
+        summary = prepare_output(
+            output, separator="LAPACK is being used...", count=2, save=True)
+        self.assertEqual(
+            summary[1], "Largest 20 eigenvalues: 27.66 1.05 1.00 0.94 0.91 0.90 0.89 0.89 0.88 0.88 0.88 0.88 0.87 0.87 0.87 0.87 0.86 0.86 0.86 0.85", "Incorrect mds analysis.")
 
 
 if __name__ == "__main__":
@@ -290,21 +314,21 @@ if __name__ == "__main__":
     if options.clean:
         clean_repository()
         sys.exit()
-    if options.data: 
+    if options.data:
         prepare_tested_data()
         sys.exit()
     if options.exe:
-        if os.path.exists(options.exe): 
+        if os.path.exists(options.exe):
             prepare_directory(king_path)
             king_exe = options.exe
-            #Delete "-e" argument from arguments list to prevent unittest errors - it is script argument not unittests argument 
-            for x in range(0, len(sys.argv)): 
+            # Delete "-e" argument from arguments list to prevent unittest errors - it is script argument not unittests argument
+            for x in range(0, len(sys.argv)):
                 if sys.argv[x] == "-e":
-                    #Pop "-e" and path itself
+                    # Pop "-e" and path itself
                     sys.argv.pop(x+1)
                     sys.argv.pop(x)
                     break
-        else: 
+        else:
             print("Specified path to KING executable doesn't exist.")
             sys.exit(1)
     else:
