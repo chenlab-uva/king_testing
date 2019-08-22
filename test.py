@@ -8,13 +8,12 @@ import argparse
 import subprocess
 import urllib.request
 
-# Not tested: --callrateM, --callrateN, --mds, --pcam --invnorm, --maxP, --model, --prevalence, --noflip, --cpus
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-c', '--clean', dest='clean', action="store_true",
                     default=False, help="Clean directory from previous testing.")
-parser.add_argument('-v', '--verbose', action="store_true", help="Verbose tests output.")
+parser.add_argument('-v', '--verbose', action="store_true",
+                    help="Verbose tests output.")
 parser.add_argument('-d', '--data', action="store_true", dest="data",
                     help="Prepare data without building and testing.")
 parser.add_argument('-e', '--exe', action="store", dest="exe",
@@ -152,12 +151,21 @@ class KingTestCase(unittest.TestCase):
                          '0', '1', '1', '0'], 'Incorrect inference')
 
     def test_related_files(self):
-        self.assertTrue(os.path.exists(os.path.join(
-            king_path, files_prefix + "allsegs.txt")), "IBD SEGs file doesn't exist.")
-        self.assertTrue(os.path.exists(os.path.join(
-            king_path, files_prefix + ".kin")), "Within-family kinship data file doesn't exist.")
-        self.assertTrue(os.path.exists(os.path.join(
-            king_path, files_prefix + ".kin0")), "Between-family relatives file doesn't exist.")
+        out_file1 = os.path.join(king_path, files_prefix + "allsegs.txt")
+        self.assertTrue(os.path.exists(out_file1),
+                        "IBD SEGs file doesn't exist.")
+        self.assertTrue(os.stat(out_file1).st_size >
+                        0, "IBD SEGs file is empty.")
+        out_file2 = os.path.join(king_path, files_prefix + ".kin")
+        self.assertTrue(os.path.exists(out_file2),
+                        "Within-family kinship data file doesn't exist.")
+        self.assertTrue(os.stat(out_file2).st_size > 0,
+                        "Within-family kinship data file is empty.")
+        out_file3 = os.path.join(king_path, files_prefix + ".kin0")
+        self.assertTrue(os.path.exists(out_file3),
+                        "Between-family relatives file doesn't exist.")
+        self.assertTrue(os.stat(out_file3).st_size > 0,
+                        "Between-family relatives file is empty.")
 
     def test_duplicate(self):
         out = self.run_command("--duplicate")
@@ -184,17 +192,30 @@ class KingTestCase(unittest.TestCase):
             result[1], {'KING2': '1454,13291'}, "Incorrect unrelated members.")
 
     def test_unrelated_files(self):
-        self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix +
-                                                    "unrelated_toberemoved.txt")), "File containing unrelated individuals doesn't exist.")
-        self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix + "unrelated.txt")),
-                        "File containing to-be-removed individuals doesn't exist.")
+        out_file1 = os.path.join(
+            king_path, files_prefix + "unrelated_toberemoved.txt")
+        self.assertTrue(os.path.exists(out_file1),
+                        "File containing unrelated individuals doesn't exist.")
+        self.assertTrue(os.stat(out_file1).st_size > 0,
+                        "File containing unrelated individuals is empty.")
+        out_file2 = os.path.join(king_path, files_prefix + "unrelated.txt")
+        self.assertTrue(os.path.exists(
+            out_file2), "File containing to-be-removed individuals doesn't exist.")
+        self.assertTrue(os.stat(out_file1).st_size > 0,
+                        "File containing to-be-removed individuals is empty.")
 
     def test_cluster_files(self):
         out = self.run_command("--cluster")
-        self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix +
-                                                    "updateids.txt")), "File containing update-id information doesn't exist.")
-        self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix + "cluster.kin")),
-                        "File containing newly clustered families doesn't exist.")
+        out_file1 = os.path.join(king_path, files_prefix + "updateids.txt")
+        self.assertTrue(os.path.exists(out_file1),
+                        "File containing update-id information doesn't exist.")
+        self.assertTrue(os.stat(out_file1).st_size > 0,
+                        "File containing update-id information is empty.")
+        out_file2 = os.path.join(king_path, files_prefix + "cluster.kin")
+        self.assertTrue(os.path.exists(
+            out_file2), "File containing newly clustered families doesn't exist.")
+        self.assertTrue(os.stat(out_file2).st_size > 0,
+                        "File containing newly clustered families is empty.")
 
     def test_build(self):
         out = self.run_command("--build")
@@ -205,10 +226,16 @@ class KingTestCase(unittest.TestCase):
             summary[1], "  RULE FS0: Sibship (NA07045 NA12813)'s parents are (1 2)", "Incorrect parrents in KING2 family.")
 
     def test_build_files(self):
-        self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix + "build.log")),
-                        "File containing details of pedigree reconstruction doesn't exist.")
-        self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix + "updateparents.txt")),
-                        "File containing updated parent information doesn't exist.")
+        out_file = os.path.join(king_path, files_prefix + "build.log")
+        self.assertTrue(os.path.exists(
+            out_file), "File containing details of pedigree reconstruction doesn't exist.")
+        self.assertTrue(os.stat(out_file).st_size > 0,
+                        "File containing details of pedigree reconstruction is empty.")
+        out_file2 = os.path.join(king_path, files_prefix + "updateparents.txt")
+        self.assertTrue(os.path.exists(
+            out_file2), "File containing updated parent information doesn't exist.")
+        self.assertTrue(os.stat(out_file2).st_size > 0,
+                        "File containing updated parent information is empty.")
 
     def test_by_sample(self):
         out = self.run_command("--bysample")
@@ -219,20 +246,32 @@ class KingTestCase(unittest.TestCase):
             summary[1], "There are 200 parent-offspring pairs and 94 trios according to the pedigree.")
 
     def test_by_sample_files(self):
-        self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix +
-                                                    "bySample.txt")), "File containing QC statistics by sample doesn't exist.")
+        out_file = os.path.join(king_path, files_prefix + "bySample.txt")
+        self.assertTrue(os.path.exists(out_file),
+                        "File containing QC statistics by sample doesn't exist.")
+        self.assertTrue(os.stat(out_file).st_size > 0,
+                        "File containing QC statistics by sample is empty.")
 
-    def test_by_SNP(self):
+    def test_by_SNP_files(self):
         self.run_command("--bySNP")
-        self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix +
-                                                    "bySNP.txt")), "File containing QC statistics by SNP doesn't exist.")
+        out_file = os.path.join(king_path, files_prefix + "bySNP.txt")
+        self.assertTrue(os.path.exists(out_file),
+                        "File containing QC statistics by SNP doesn't exist.")
+        self.assertTrue(os.stat(out_file).st_size > 0,
+                        "File containing QC statistics by SNP is empty.")
 
-    def test_roh(self):
+    def test_roh_files(self):
         self.run_command("--roh")
-        self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix + ".roh")),
-                        "File containing run of homozygosity summary doesn't exist.")
-        self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix + ".rohseg.gz")),
-                        "File containing run of homozygosity segments doesn't exist.")
+        out_file = os.path.join(king_path, files_prefix + ".roh")
+        self.assertTrue(os.path.exists(
+            out_file), "File containing run of homozygosity summary doesn't exist.")
+        self.assertTrue(os.stat(out_file).st_size > 0,
+                        "File containing run of homozygosity summary is empty.")
+        out_file2 = os.path.join(king_path, files_prefix + ".rohseg.gz")
+        self.assertTrue(os.path.exists(
+            out_file2), "File containing run of homozygosity segments doesn't exist.")
+        self.assertTrue(os.stat(out_file2).st_size > 0,
+                        "File containing run of homozygosity segments is empty.")
 
     def test_autoqc(self):
         out = self.run_command("--autoqc")
@@ -246,12 +285,24 @@ class KingTestCase(unittest.TestCase):
                                '1.3 Sample call rate < 95% (removed) (0)', '1.4 SNPs with call rate < 95% (removed) (0)', '3 Generate Final Study Files', "Final QC'ed data 332 18290"], "Incorrect summary of autoQC.")
 
     def test_autoqc_files(self):
-        self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix +
-                                                    "_autoQC_Summary.txt")), "File containing QC summary report doesn't exist.")
-        self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix +
-                                                    "_autoQC_snptoberemoved.txt")), "File containing SNP-removal QC doesn't exist.")
-        self.assertTrue(os.path.exists(os.path.join(king_path, files_prefix +
-                                                    "_autoQC_sampletoberemoved.txt")), "File containing Sample-removal QC doesn't exist.")
+        out_file1 = os.path.join(
+            king_path, files_prefix + "_autoQC_Summary.txt")
+        self.assertTrue(os.path.exists(out_file1),
+                        "File containing QC summary report doesn't exist.")
+        self.assertTrue(os.stat(out_file1).st_size > 0,
+                        "File containing QC summary report is empty.")
+        out_file2 = os.path.join(
+            king_path, files_prefix + "_autoQC_snptoberemoved.txt")
+        self.assertTrue(os.path.exists(out_file2),
+                        "File containing SNP-removal QC doesn't exist.")
+        self.assertTrue(os.stat(out_file2).st_size > 0,
+                        "File containing SNP-removal QC report is empty.")
+        out_file3 = os.path.join(
+            king_path, files_prefix + "_autoQC_sampletoberemoved.txt")
+        self.assertTrue(os.path.exists(out_file3),
+                        "File containing Sample-removal QC doesn't exist.")
+        self.assertTrue(os.stat(out_file3).st_size > 0,
+                        "File containing Sample-removal QC is empty.")
 
     def test_mtscore(self):
         out = self.run_command("--mtscore", exit_stat=True)
