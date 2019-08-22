@@ -341,6 +341,13 @@ class KingTestCase(unittest.TestCase):
         self.assertEqual(
             summary[1], "Largest 20 eigenvalues: 828.95 160.64 158.81 148.44 145.73 144.82 143.56 143.08 143.01 142.91 142.60 142.15 142.01 141.80 141.69 141.62 141.28 141.08 140.94 140.72", "Incorrect pca analysis.")
 
+    def test_pcs_files(self):
+        out_file1 = os.path.join(king_path, files_prefix + "pc.txt")
+        self.assertTrue(os.path.exists(out_file1),
+                        "File containing principal components doesn't exist.")
+        self.assertTrue(os.stat(out_file1).st_size > 0,
+                        "File containing principal components is empty.")
+
     def test_mds(self):
         out = self.run_command("--mds")
         if "  Please re-compile KING with LAPACK library." in out.decode():
@@ -351,6 +358,10 @@ class KingTestCase(unittest.TestCase):
         self.assertEqual(
             summary[1], "Largest 20 eigenvalues: 27.66 1.05 1.00 0.94 0.91 0.90 0.89 0.89 0.88 0.88 0.88 0.88 0.87 0.87 0.87 0.87 0.86 0.86 0.86 0.85", "Incorrect mds analysis.")
 
+    def test_mds_files(self):
+        out_file1 = os.path.join(king_path, files_prefix + "pc.txt")
+        self.assertTrue(os.path.exists(out_file1), "File containing principal components doesn't exist.")
+        self.assertTrue(os.stat(out_file1).st_size > 0, "File containing principal components is empty.")
 
 if __name__ == "__main__":
     global king_exe, cur_dir, king_path, data, bed, files_prefix
