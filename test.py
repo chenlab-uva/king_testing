@@ -12,12 +12,12 @@ import urllib.request
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-c', dest='clean', action="store_true",
+parser.add_argument('-c', '--clean', dest='clean', action="store_true",
                     default=False, help="Clean directory from previous testing.")
-parser.add_argument('-v', action="store_true", help="Verbose tests output.")
-parser.add_argument('-d', action="store_true", dest="data",
+parser.add_argument('-v', '--verbose', action="store_true", help="Verbose tests output.")
+parser.add_argument('-d', '--data', action="store_true", dest="data",
                     help="Prepare data without building and testing.")
-parser.add_argument('-e', action="store", dest="exe",
+parser.add_argument('-e', '--exe', action="store", dest="exe",
                     help="Specify KING executable to be used for testing.")
 
 
@@ -324,7 +324,7 @@ if __name__ == "__main__":
             # Delete "-e" argument from arguments list to prevent unittest errors - it is script argument not unittests argument
             for x in range(0, len(sys.argv)):
                 if sys.argv[x] == "-e":
-                    # Pop "-e" and path itself
+                    # Pop "-e" and path to binary from arguments list
                     sys.argv.pop(x+1)
                     sys.argv.pop(x)
                     break
