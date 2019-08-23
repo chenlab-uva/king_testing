@@ -334,6 +334,7 @@ class KingTestCase(unittest.TestCase):
     def test_pca(self):
         out = self.run_command("--pca")
         if "SVD...  Please re-compile KING with LAPACK library." in out.decode():
+            print("Binary compiled without LAPACK. Skipping PCA test ....")
             return
         output = handle_kings_output(out, "SVD...  LAPACK is used.")
         summary = prepare_output(
@@ -351,6 +352,7 @@ class KingTestCase(unittest.TestCase):
     def test_mds(self):
         out = self.run_command("--mds")
         if "  Please re-compile KING with LAPACK library." in out.decode():
+            print("Binary compiled without LAPACK. Skipping MDS test ....")
             return
         output = handle_kings_output(out, "  LAPACK is being used...")
         summary = prepare_output(
@@ -360,8 +362,11 @@ class KingTestCase(unittest.TestCase):
 
     def test_mds_files(self):
         out_file1 = os.path.join(king_path, files_prefix + "pc.txt")
-        self.assertTrue(os.path.exists(out_file1), "File containing principal components doesn't exist.")
-        self.assertTrue(os.stat(out_file1).st_size > 0, "File containing principal components is empty.")
+        self.assertTrue(os.path.exists(out_file1),
+                        "File containing principal components doesn't exist.")
+        self.assertTrue(os.stat(out_file1).st_size > 0,
+                        "File containing principal components is empty.")
+
 
 if __name__ == "__main__":
     global king_exe, cur_dir, king_path, data, bed, files_prefix
