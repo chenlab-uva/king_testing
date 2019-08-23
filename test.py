@@ -334,8 +334,8 @@ class KingTestCase(unittest.TestCase):
     def test_pca(self):
         out = self.run_command("--pca")
         if "SVD...  Please re-compile KING with LAPACK library." in out.decode():
-            print("Binary compiled without LAPACK. Skipping PCA test ....")
-            return
+            print("Binary compiled without LAPACK. Skipping PCA test ...")
+            return 
         output = handle_kings_output(out, "SVD...  LAPACK is used.")
         summary = prepare_output(
             output, separator="SVD...  LAPACK is used.", count=2, save=True)
@@ -352,7 +352,7 @@ class KingTestCase(unittest.TestCase):
     def test_mds(self):
         out = self.run_command("--mds")
         if "  Please re-compile KING with LAPACK library." in out.decode():
-            print("Binary compiled without LAPACK. Skipping MDS test ....")
+            print("Binary compiled without LAPACK. Skipping MDS test ...")
             return
         output = handle_kings_output(out, "  LAPACK is being used...")
         summary = prepare_output(
