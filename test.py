@@ -367,11 +367,17 @@ class KingTestCase(unittest.TestCase):
         self.assertTrue(os.stat(out_file1).st_size > 0,
                         "\nFile containing principal components is empty.")
 
-    def test_SNP_number(self):
+    def test_samples_number(self):
         out = self.run_command("--related")
         output = handle_kings_output(out, "  PLINK pedigrees loaded:")
-        summary = prepare_output(output, separator="PLINK pedigrees loaded:", count=4, save=True)
-        self.assertAlmostEqual(summary[0], "  PLINK pedigrees loaded: 332 samples", "\nWrong number of samples detected by KING.")
+        summary = prepare_output(output, separator="PLINK pedigrees loaded:", count=1, save=True)
+        self.assertEqual(summary[0], "  PLINK pedigrees loaded: 332 samples", "\nWrong number of samples detected by KING.")
+    
+    def test_SNP_number(self):
+        out = self.run_command("--related")
+        output = handle_kings_output(out, "  PLINK maps loaded:")
+        summary = prepare_output(output, separator="PLINK maps loaded:", count=1, save=True)
+        self.assertEqual(summary[0], "  PLINK maps loaded: 18290 SNPs", "\nWrong number of SNPs detected by KING.")
 
 
 if __name__ == "__main__":
