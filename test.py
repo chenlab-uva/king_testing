@@ -358,7 +358,7 @@ class KingTestCase(unittest.TestCase):
         summary = prepare_output(
             output, separator="LAPACK is being used...", count=2, save=True)
         self.assertEqual(
-            summary[1], "Largest 20 eigenvalues: 27.66 1.05 1.00 0.94 0.91 0.90 0.89 0.89 0.88 0.88 0.88 0.88 0.87 0.87 0.87 0.87 0.86 0.86 0.86 0.85", "\nIncorrect mds analysis.")
+            summary[1], "Largest 20 eigenvalues: 18.82 0.70 0.69 0.60 0.58 0.57 0.56 0.56 0.56 0.56 0.55 0.55 0.55 0.55 0.55 0.55 0.54 0.54 0.54 0.54", "\nIncorrect mds analysis.")
 
     def test_mds_files(self):
         out_file1 = os.path.join(king_path, files_prefix + "pc.txt")
