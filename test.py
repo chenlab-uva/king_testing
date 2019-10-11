@@ -336,9 +336,9 @@ class KingTestCase(unittest.TestCase):
         if "SVD...  Please re-compile KING with LAPACK library." in out.decode():
             print("\nBinary compiled without LAPACK. Skipping PCA test ...")
             return 
-        output = handle_kings_output(out, "SVD...  LAPACK is used.")
+        output = handle_kings_output(out, "  LAPACK is being used...")
         summary = prepare_output(
-            output, separator="SVD...  LAPACK is used.", count=2, save=True)
+            output, separator="LAPACK is being used...", count=2, save=True)
         self.assertEqual(
             summary[1], "Largest 20 eigenvalues: 821.89 159.46 157.53 147.33 144.79 143.59 142.58 142.35 141.89 141.85 141.48 141.04 140.95 140.81 140.74 140.60 140.22 140.10 139.81 139.67", "\nIncorrect pca analysis.")
 
