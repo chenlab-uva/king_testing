@@ -340,7 +340,7 @@ class KingTestCase(unittest.TestCase):
         summary = prepare_output(
             output, separator="SVD...  LAPACK is used.", count=2, save=True)
         self.assertEqual(
-            summary[1], "Largest 20 eigenvalues: 828.95 160.64 158.81 148.44 145.73 144.82 143.56 143.08 143.01 142.91 142.60 142.15 142.01 141.80 141.69 141.62 141.28 141.08 140.94 140.72", "\nIncorrect pca analysis.")
+            summary[1], "Largest 20 eigenvalues: 821.89 159.46 157.53 147.33 144.79 143.59 142.58 142.35 141.89 141.85 141.48 141.04 140.95 140.81 140.74 140.60 140.22 140.10 139.81 139.67", "\nIncorrect pca analysis.")
 
     def test_pcs_files(self):
         out_file1 = os.path.join(king_path, files_prefix + "pc.txt")
